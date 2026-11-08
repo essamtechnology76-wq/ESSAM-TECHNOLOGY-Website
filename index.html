@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="Tell ESSAM TECHNOLOGY about your project. Submit a website, e-commerce, graphic design or WhatsApp automation enquiry.">
+  <title>Project Enquiry | ESSAM TECHNOLOGY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="ESSAM TECHNOLOGY home">
+      <span class="brand-mark">E</span>
+      <span class="brand-name">ESSAM <b>TECHNOLOGY</b></span>
+    </a>
+    <span class="top-note">LET'S BUILD SOMETHING GREAT</span>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro">
+      <div class="eyebrow"><span class="eyebrow-line"></span> PROJECT ENQUIRY</div>
+      <h1>Let's bring your<br><span>idea to life.</span></h1>
+      <p class="intro-copy">Tell us a little about your project. Share your goals and what you need, and our team will get back to you.</p>
+      <div class="service-points">
+        <div><span class="point-icon">✦</span> Websites that work for your business</div>
+        <div><span class="point-icon">✦</span> Creative design that stands out</div>
+        <div><span class="point-icon">✦</span> Smarter customer communication</div>
+      </div>
+      <div class="intro-footer">
+        <span class="footer-dot"></span>
+        <span>Professional digital solutions, built around you.</span>
+      </div>
+    </section>
+
+    <section class="form-panel" aria-labelledby="form-title">
+      <div class="form-heading">
+        <div>
+          <div class="form-kicker">START A PROJECT</div>
+          <h2 id="form-title">Tell us about your project</h2>
+          <p>Complete the form below. Fields marked <span class="required">*</span> are required.</p>
+        </div>
+        <div class="step-number">01 <span>/ 01</span></div>
+      </div>
+
+      <form id="enquiryForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="fullName">Full name <span class="required">*</span></label>
+            <input id="fullName" name="fullName" type="text" placeholder="e.g. Samuel Essien" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="email">Email address <span class="required">*</span></label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="phone">Phone / WhatsApp number <span class="required">*</span></label>
+            <input id="phone" name="phone" type="tel" placeholder="+234..." autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="businessName">Business or brand name</label>
+            <input id="businessName" name="businessName" type="text" placeholder="Your business name" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="service">Service required <span class="required">*</span></label>
+            <select id="service" name="service" required>
+              <option value="" disabled selected>Select a service</option>
+              <option>Website Development</option>
+              <option>E-commerce Website Development</option>
+              <option>Website Redesign</option>
+              <option>Professional Logo Design</option>
+              <option>Graphic Design Services</option>
+              <option>WhatsApp Business Automation</option>
+              <option>Other / Not sure yet</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="budget">Estimated project budget</label>
+            <select id="budget" name="budget">
+              <option value="" selected>Select your budget (optional)</option>
+              <option>Below ₦50,000</option>
+              <option>₦50,000 – ₦100,000</option>
+              <option>₦100,000 – ₦250,000</option>
+              <option>₦250,000 – ₦500,000</option>
+              <option>₦500,000 – ₦1,000,000</option>
+              <option>Above ₦1,000,000</option>
+              <option>Let's discuss</option>
+            </select>
+          </div>
+          <div class="field field-full">
+            <label for="description">Describe your project <span class="required">*</span></label>
+            <textarea id="description" name="description" rows="5" placeholder="What would you like us to create? Include any important features, goals or examples..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-bottom">
+          <p class="privacy-note"><span class="lock-icon">▣</span> Your information will only be used to respond to your enquiry.</p>
+          <button id="submitBtn" type="submit">
+            <span class="button-label">Submit enquiry</span>
+            <span class="button-arrow">↗</span>
+          </button>
+        </div>
+        <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>© <span id="year"></span> ESSAM TECHNOLOGY. All rights reserved.</span>
+    <span>Designed to move your business forward.</span>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
