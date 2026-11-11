@@ -186,7 +186,7 @@ function submitToAppsScript(payload) {
 
     function onMessage(event) {
       if (event.source !== iframe.contentWindow) return;
-      if (!event.origin || !event.origin.endsWith(".googleusercontent.com")) return;
+      if (!event.origin || !(event.origin.endsWith(".googleusercontent.com") || event.origin === "https://script.google.com")) return;
       const result = event.data;
       if (!result || result.source !== "essam-technology" || result.token !== token) return;
       if (result.success) finish(null, result);
