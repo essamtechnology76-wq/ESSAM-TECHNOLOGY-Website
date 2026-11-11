@@ -80,11 +80,6 @@ function cleanFormData(form) {
   return data;
 }
 
-/*
- * The website uses short HTML field names such as "fullName".
- * Apps Script expects the exact Google Sheet header names such as
- * "Full Name". Convert them here before sending the submission.
- */
 function prepareBackendData(formType, formData) {
   const common = {
     fullName: "Full Name",
@@ -136,7 +131,78 @@ function prepareBackendData(formType, formData) {
     }
   });
 
+  // The marketer form collects profile links and usernames in one field.
+  if (formType === "marketer" && formData.platformLinks) {
+    converted["Social Usernames"] = formData.platformLinks;
+  }
+
   return converted;
+}
+
+/*
+ * Submit through a hidden HTML form + iframe. This lets the Apps Script
+ * HTML response post the real JSON result back to this page with postMessage.
+ * Unlike fetch(..., {mode:"no-cors"}), the page can distinguish success/failure.
+ */
+function submitToAppsScript(payload) {
+  return new Promise(function (resolve, reject) {
+    const token = (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : String(Date.now()) + "-" + Math.random().toString(16).slice(2);
+
+    const iframe = document.createElement("iframe");
+    iframe.name = "essam-submit-" + token;
+    iframe.title = "Submission response";
+    iframe.style.display = "none";
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = SCRIPT_URL;
+    form.target = iframe.name;
+    form.acceptCharset = "UTF-8";
+    form.style.display = "none";
+
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "payload";
+    input.value = JSON.stringify({ ...payload, responseToken: token });
+    form.appendChild(input);
+
+    let finished = false;
+    const timeout = window.setTimeout(function () {
+      finish(new Error("The server did not respond in time. Please try again."));
+    }, 30000);
+
+    function finish(error, result) {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timeout);
+      window.removeEventListener("message", onMessage);
+      form.remove();
+      iframe.remove();
+      if (error) reject(error);
+      else resolve(result);
+    }
+
+    function onMessage(event) {
+      if (event.source !== iframe.contentWindow) return;
+      if (!event.origin || !event.origin.endsWith(".googleusercontent.com")) return;
+      const result = event.data;
+      if (!result || result.source !== "essam-technology" || result.token !== token) return;
+      if (result.success) finish(null, result);
+      else finish(new Error(result.message || "Your submission could not be saved."));
+    }
+
+    window.addEventListener("message", onMessage);
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
+
+    try {
+      form.submit();
+    } catch (error) {
+      finish(error);
+    }
+  });
 }
 
 document.querySelectorAll("form[data-form]").forEach(function (form) {
@@ -169,31 +235,20 @@ document.querySelectorAll("form[data-form]").forEach(function (form) {
     }
 
     const messages = {
-      order: "Thank you. Your project enquiry has been sent. ESSAM TECHNOLOGY will review the details and contact you. If your request is urgent, please follow up on WhatsApp.",
-      partner: "Thank you for applying to become an ESSAM TECHNOLOGY partner. Your application has been sent for review. We will contact you using the details you provided.",
-      marketer: "Thank you for registering your interest as a marketer. Your details have been sent for review. Commission applies only to verified referrals after the customer has paid and the agreed service has been delivered.",
-      contact: "Thank you for contacting ESSAM TECHNOLOGY. Your message has been sent."
+      order: "Your project enquiry has been saved successfully. ESSAM TECHNOLOGY will review it and contact you.",
+      partner: "Your partner application has been saved successfully. We will contact you after reviewing it.",
+      marketer: "Your marketer registration has been saved successfully. Commission applies only to verified referrals after customer payment and service delivery.",
+      contact: "Your message has been saved successfully. Thank you for contacting ESSAM TECHNOLOGY."
     };
 
     try {
       const data = prepareBackendData(formType, formData);
-
-      /*
-       * Google Apps Script ContentService does not expose a readable
-       * cross-origin response to this GitHub Pages website. no-cors
-       * allows the simple POST to reach the Apps Script endpoint, but
-       * the browser cannot inspect the JSON result.
-       */
-      await fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ formType: formType, data: data })
-      });
+      const result = await submitToAppsScript({ formType: formType, data: data });
 
       feedback(
         form,
-        messages[formType] || "Your submission has been sent. We will contact you soon.",
+        (messages[formType] || "Your submission was saved successfully.") +
+          (result.emailNotificationSent ? " An email notification was also sent." : " Your submission was saved, but the email notification could not be sent."),
         "success"
       );
 
@@ -206,7 +261,7 @@ document.querySelectorAll("form[data-form]").forEach(function (form) {
       console.error("ESSAM TECHNOLOGY form submission error:", error);
       feedback(
         form,
-        "We could not send your submission. Please check your internet connection and try again, or contact us on WhatsApp at +234 902 660 1873.",
+        error.message || "We could not confirm your submission. Please try again or contact us on WhatsApp at +234 902 660 1873.",
         "error"
       );
     } finally {
